@@ -650,9 +650,8 @@ void Element::writeProperties(Xml& xml) const
             }
       if (_tag != 0x1) {
             for (int i = 1; i < MAX_TAGS; i++) {
-                  if (_tag == ((unsigned)1 << i)) {
+                if ((_tag & (unsigned)1 << i) != 0x00) {
                         xml.tag("tag", score()->layerTags()[i]);
-                        break;
                         }
                   }
             }
@@ -719,9 +718,8 @@ bool Element::readProperties(const QDomElement& e)
             setTrack(val.toInt());
       else if (tag == "tag") {
             for (int i = 1; i < MAX_TAGS; i++) {
-                  if (score()->layerTags()[i] == val) {
-                        _tag = 1 << i;
-                        break;
+                if (score()->layerTags()[i].toInt() == (val.toInt() & (1 << i))) {
+                        _tag = _tag | 1 << i;
                         }
                   }
             }
