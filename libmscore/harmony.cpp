@@ -532,27 +532,31 @@ bool Harmony::isEmpty() const
 
 void Harmony::layout()
       {
-      if (_editMode || textList.isEmpty()) {
-            Text::layout();
+      if (_editMode || textList.isEmpty())
+            Text::layout1();
+      else {
+            // textStyle().layout(this);
+            QRectF bb;
+            foreach(const TextSegment* ts, textList)
+                  bb |= ts->boundingRect().translated(ts->x, ts->y);
+            setbbox(bb);
+            }
+      if (!parent()) {          // for use in palette
+            setPos(QPointF());
             return;
             }
-      textStyle().layout(this);
-      if (!parent()) {
-            setPos(QPointF(0.0, 0.0));
-            return;
-            }
+
+      qreal yy = 0.0;
       if (parent()->type() == SEGMENT) {
             Measure* m = static_cast<Measure*>(parent()->parent());
-            qreal yy = track() < 0 ? 0.0 : m->system()->staff(track() / VOICES)->y();
-            setPos(ipos() + QPointF(0.0, yy));
+            yy = track() < 0 ? 0.0 : m->system()->staff(staffIdx())->y();
+            yy += score()->styleP(ST_harmonyY);
             }
-      else
-            setPos(QPointF(0.0, 0.0));
+      else if (parent()->type() == FRET_DIAGRAM) {
+            yy = score()->styleP(ST_harmonyFretDist);
+            }
+      setPos(QPointF(0.0, yy));
 
-      QRectF bb;
-      foreach(const TextSegment* ts, textList)
-            bb |= ts->boundingRect().translated(ts->x, ts->y);
-      setbbox(bb);
       if (!readPos().isNull()) {
             // version 114 is measure based
             // rebase to segment
