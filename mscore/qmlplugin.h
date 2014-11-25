@@ -49,6 +49,7 @@ extern int updateVersion();
 //   @P scores               array[Ms::Score]  all currently open scores (read only)
 //---------------------------------------------------------
 
+#ifdef QML_SCRIPT_INTERFACE
 class QmlPlugin : public QQuickItem {
       Q_OBJECT
       Q_PROPERTY(QString menuPath        READ menuPath WRITE setMenuPath)
@@ -86,11 +87,11 @@ class QmlPlugin : public QQuickItem {
       QString version() const              { return _version; }
       void setDescription(const QString& s) { _description = s; }
       QString description() const          { return _description; }
-
       void setPluginType(const QString& s) { _pluginType = s;    }
       QString pluginType() const           { return _pluginType; }
       void setDockArea(const QString& s)   { _dockArea = s;    }
       QString dockArea() const             { return _dockArea; }
+
       void runPlugin()                     { emit run();       }
 
       int division() const                { return MScore::division; }
@@ -111,7 +112,67 @@ class QmlPlugin : public QQuickItem {
       Q_INVOKABLE Ms::Score* readScore(const QString& name);
       };
 
+#ifdef LUA_SCRIPT_INTERFACE
+class Plugin : public QObject {
+      Q_OBJECT
+      Q_PROPERTY(QString menuPath        READ menuPath WRITE setMenuPath)
+      Q_PROPERTY(QString version         READ version WRITE setVersion)
+      Q_PROPERTY(QString description     READ description WRITE setDescription)
+      Q_PROPERTY(QString pluginType      READ pluginType WRITE setPluginType)
+
+      Q_PROPERTY(QString dockArea        READ dockArea WRITE setDockArea)
+      Q_PROPERTY(int division            READ division)
+      Q_PROPERTY(int mscoreVersion       READ mscoreVersion)
+      Q_PROPERTY(int mscoreMajorVersion  READ mscoreMajorVersion)
+      Q_PROPERTY(int mscoreMinorVersion  READ mscoreMinorVersion)
+      Q_PROPERTY(int mscoreUpdateVersion READ mscoreUpdateVersion)
+      Q_PROPERTY(qreal mscoreDPI         READ mscoreDPI)
+      Q_PROPERTY(Ms::Score* curScore     READ curScore)
+      Q_PROPERTY(QList<Ms::Score> scores READ scores)   // TODO - Lua
+
+      MuseScoreCore* msc;
+      QString _menuPath;
+      QString _pluginType;
+      QString _dockArea;
+      QString _version;
+      QString _description;
+
+   signals:
+      void run();
+
+   public:
+      QmlPlugin(QObject* parent = 0);
+      ~QmlPlugin();
+
+      void setMenuPath(const QString& s)   { _menuPath = s;    }
+      QString menuPath() const             { return _menuPath; }
+      void setVersion(const QString& s)    { _version = s; }
+      QString version() const              { return _version; }
+      void setDescription(const QString& s) { _description = s; }
+      QString description() const          { return _description; }
+
+      void runPlugin()                     { emit run();       }
+
+      int division() const                { return MScore::division; }
+      int mscoreVersion() const           { return Ms::version();      }
+      int mscoreMajorVersion() const      { return majorVersion();  }
+      int mscoreMinorVersion() const      { return minorVersion();  }
+      int mscoreUpdateVersion() const     { return updateVersion(); }
+      qreal mscoreDPI() const             { return MScore::DPI;     }
+
+      Score* curScore() const;
+      QList<Score> scores();
+
+      Q_INVOKABLE Ms::Score* newScore(const QString& name, const QString& part, int measures);
+      Q_INVOKABLE Ms::Element* newElement(int);
+      Q_INVOKABLE void cmd(const QString&);
+      Q_INVOKABLE Ms::MsProcess* newQProcess();
+      Q_INVOKABLE bool writeScore(Ms::Score*, const QString& name, const QString& ext);
+      Q_INVOKABLE Ms::Score* readScore(const QString& name);
+      };
+#endif
 
 } // namespace Ms
+#endif
 #endif
 #endif

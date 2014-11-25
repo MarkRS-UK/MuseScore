@@ -28,6 +28,8 @@
 
 #cmakedefine HAS_MIDI
 #cmakedefine SCRIPT_INTERFACE
+//#cmakedefine QML_SCRIPT_INTERFACE
+#cmakedefine LUA_SCRIPT_INTERFACE
 #cmakedefine HAS_AUDIOFILE
 #cmakedefine USE_SSE
 

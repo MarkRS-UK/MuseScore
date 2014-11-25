@@ -971,7 +971,7 @@ void Segment::clearAnnotations()
 
 Ms::Element* Segment::elementAt(int track) const {
       Element* e = _elist.value(track);
-#ifdef SCRIPT_INTERFACE
+#ifdef QML_SCRIPT_INTERFACE
 // if called from QML/JS, tell QML engine not to garbage collect this object
       if (e)
             QQmlEngine::setObjectOwnership(e, QQmlEngine::CppOwnership);
@@ -1257,7 +1257,7 @@ QString Segment::accessibleExtraInfo()
 //--------------------------------------------------------
 //   qmlAnnotations
 //--------------------------------------------------------
-
+#ifdef QML_SCRIPT_INTERFACE
 QQmlListProperty<Ms::Element> Segment::qmlAnnotations()
       {
       _qmlAnnotations.clear();
@@ -1267,5 +1267,17 @@ QQmlListProperty<Ms::Element> Segment::qmlAnnotations()
             }
       return QQmlListProperty<Ms::Element>(this, _qmlAnnotations);
       }
+#endif
 
+#ifdef LUA_SCRIPT_INTERFACE
+QList<Ms::Element> Segment::qmlAnnotations()
+      {
+      _qmlAnnotations.clear();
+      for (std::vector<Element*>::iterator it = _annotations.begin();
+           it != _annotations.end(); ++it) {
+            _qmlAnnotations.append(*it);
+            }
+      return QList<Ms::Element>(this, _qmlAnnotations);
+      }
+#endif
 }           // namespace Ms

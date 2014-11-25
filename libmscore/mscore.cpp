@@ -50,6 +50,9 @@
 #include "mscoreview.h"
 #include "plugins.h"
 #include "chord.h"
+#ifdef LUA_SCRIPT_INTERFACE
+#include <QtLua/State>
+#endif
 
 namespace Ms {
 
@@ -91,7 +94,7 @@ int     MScore::mtcType;
 bool    MScore::noExcerpts = false;
 bool    MScore::noImages = false;
 
-#ifdef SCRIPT_INTERFACE
+#ifdef QML_SCRIPT_INTERFACE
 QQmlEngine* MScore::_qml = 0;
 #endif
 
@@ -108,7 +111,7 @@ extern QString mscoreGlobalShare;
 
 void MScore::init()
       {
-#ifdef SCRIPT_INTERFACE
+#ifdef QML_SCRIPT_INTERFACE
       qRegisterMetaType<Element::Type>("ElementType");
       qRegisterMetaType<Note::ValueType>("ValueType");
       qRegisterMetaType<MScore::Direction>("Direction");
@@ -275,7 +278,7 @@ void MScore::defaultStyleForPartsHasChanged()
       _defaultStyleForParts = 0;
       }
 
-#ifdef SCRIPT_INTERFACE
+#ifdef QML_SCRIPT_INTERFACE
 //---------------------------------------------------------
 //   qml
 //---------------------------------------------------------

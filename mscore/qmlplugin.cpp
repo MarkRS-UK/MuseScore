@@ -18,7 +18,9 @@
 #include "libmscore/musescoreCore.h"
 #include "libmscore/score.h"
 
+#ifdef QML_SCRIPT_INTERFACE
 #include <QQmlEngine>
+#endif
 
 namespace Ms {
 
@@ -28,11 +30,20 @@ namespace Ms {
 //   QmlPlugin
 //---------------------------------------------------------
 
+#ifdef QML_SCRIPT_INTERFACE
 QmlPlugin::QmlPlugin(QQuickItem* parent)
    : QQuickItem(parent)
       {
       msc = MuseScoreCore::mscoreCore;
       }
+#endif
+
+#ifdef LUA_SCRIPT_INTERFACE
+QmlPlugin::QmlPlugin(QObject* parent)
+      {
+      msc = mscoreCore;
+      }
+#endif
 
 QmlPlugin::~QmlPlugin()
       {
@@ -51,10 +62,17 @@ Score* QmlPlugin::curScore() const
 //   scores
 //---------------------------------------------------------
 
+#ifdef QML_SCRIPT_INTERFACE
 QQmlListProperty<Score> QmlPlugin::scores()
       {
       return QQmlListProperty<Score>(this, msc->scores());
       }
+#endif
+#ifdef LUA_SRIPT_INTERFACE
+QList<Score> QmlPlugin::scores() {
+      return QList<Score>(this, msc->scores());
+      }
+#endif
 
 //---------------------------------------------------------
 //   writeScore
@@ -74,10 +92,12 @@ bool QmlPlugin::writeScore(Score* s, const QString& name, const QString& ext)
 Score* QmlPlugin::readScore(const QString& name)
       {
       Score * score = msc->openScore(name);
+#ifdef QML_SCRIPT_INTERFACE
       // tell QML not to garbage collect this score
       if (score)
             QQmlEngine::setObjectOwnership(score, QQmlEngine::CppOwnership);
       return score;
+#endif
       }
 
 //---------------------------------------------------------
@@ -90,8 +110,10 @@ Ms::Element* QmlPlugin::newElement(int t)
       if (score == 0)
             return 0;
       Element* e = Element::create(Element::Type(t), score);
+#ifdef QML_SCRIPT_INTERFACE
       // tell QML not to garbage collect this score
       Ms::MScore::qml()->setObjectOwnership(e, QQmlEngine::CppOwnership);
+#endif
       return e;
       }
 
@@ -111,8 +133,10 @@ Score* QmlPlugin::newScore(const QString& name, const QString& part, int measure
       int view = msc->appendScore(score);
       msc->setCurrentView(0, view);
       qApp->processEvents();
+#ifdef QML_SCRIPT_INTERFACE
       // tell QML not to garbage collect this score
       QQmlEngine::setObjectOwnership(score, QQmlEngine::CppOwnership);
+#endif
       score->startCmd();
       return score;
       }
@@ -140,4 +164,3 @@ MsProcess* QmlPlugin::newQProcess()
       }
 }
 #endif
-

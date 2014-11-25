@@ -13,6 +13,9 @@
 #ifndef __MSCORE_H__
 #define __MSCORE_H__
 
+#include "/usr/include/lua-5.1/lua.hpp"
+#include <QtLua/State>
+
 namespace Ms {
 
 #define MSC_VERSION     "2.06"
@@ -347,10 +350,12 @@ class MScore : public QObject {
       static QString _globalShare;
       static int _hRaster, _vRaster;
 
-#ifdef SCRIPT_INTERFACE
+#ifdef QML_SCRIPT_INTERFACE
       static QQmlEngine* _qml;
 #endif
-
+#ifdef LUA_SCRIPT_INTERFACE
+      QtLua::State luaState;
+#endif
    public:
       enum class Direction  : char { AUTO, UP, DOWN };
       enum class DirectionH : char { AUTO, LEFT, RIGHT };
@@ -404,7 +409,7 @@ class MScore : public QObject {
       static bool noExcerpts;
       static bool noImages;
 
-#ifdef SCRIPT_INTERFACE
+#ifdef QML_SCRIPT_INTERFACE
       static QQmlEngine* qml();
 #endif
       virtual void endCmd() { };

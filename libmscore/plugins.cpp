@@ -54,12 +54,25 @@ namespace Ms {
 //   MsScoreView
 //---------------------------------------------------------
 
+#ifdef QML_SCRIPT_INTERFACE
+
 MsScoreView::MsScoreView(QQuickItem* parent)
    : QQuickPaintedItem(parent)
       {
       setAcceptedMouseButtons(Qt::LeftButton);
       score = 0;
       }
+
+#endif
+
+#ifdef LUA_SCRIPT_INTERFACE
+
+MsScoreView::MsScoreView(QObject* parent) {
+      setAcceptedMouseButtons(Qt::LeftButton);
+      score = 0;
+      }
+
+#endif
 
 //---------------------------------------------------------
 //   FileIO

@@ -63,7 +63,13 @@ class Segment : public Element {
       Q_PROPERTY(Ms::Segment*       prevInMeasure     READ prev)
       Q_PROPERTY(Ms::Segment::Type  segmentType       READ segmentType WRITE setSegmentType)
       Q_PROPERTY(int                tick              READ tick)
+#ifdef QML_SCRIPT_INTERFACE
       Q_PROPERTY(QQmlListProperty<Ms::Element> annotations READ qmlAnnotations)
+#endif
+#ifdef LUA_SCRIPT_INTERFACE
+      Q_PROPERTY(QList<Ms::Element> annotations READ qmlAnnotations)
+#endif
+
       Q_ENUMS(Type)
 
 public:
@@ -186,8 +192,12 @@ public:
       void clearAnnotations();
       void removeAnnotation(Element* e);
       bool findAnnotationOrElement(Element::Type type, int minTrack, int maxTrack);
-
+#ifdef QML_SCRIPT_INTERFACE
       QQmlListProperty<Ms::Element> qmlAnnotations();
+#endif
+#ifdef LUA_SCRIPT_INTERFACE
+      QList<Ms::Element> qmlAnnotations();
+#endif
 
       qreal dotPosX(int staffIdx) const          { return _dotPosX[staffIdx];  }
       void setDotPosX(int staffIdx, qreal val)   { _dotPosX[staffIdx] = val;   }
@@ -229,4 +239,3 @@ constexpr bool operator& (Segment::Type t1, Segment::Type t2) {
 Q_DECLARE_METATYPE(Ms::Segment::Type);
 
 #endif
-

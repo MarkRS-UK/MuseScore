@@ -4473,6 +4473,11 @@ void MuseScore::pluginTriggered(int) {}
 void MuseScore::loadPlugins() {}
 bool MuseScore::loadPlugin(const QString&) { return false;}
 void MuseScore::unloadPlugins() {}
+#ifdef QML_SCRIPT_INTERFACE
+#endif
+#ifdef LUA_SCRIPT_INTERFACE
+// TODO - Define this
+#endif
 #endif
 
 //---------------------------------------------------------
@@ -4719,8 +4724,11 @@ int main(int argc, char* av[])
             MScore::defaultStyle()->setPageFormat(pf);
             }
 
-#ifdef SCRIPT_INTERFACE
+#ifdef QML_SCRIPT_INTERFACE
       qmlRegisterType<QmlPlugin>  ("MuseScore", 1, 0, "MuseScore");
+#endif
+#ifdef LUA_SCRIPT_REGISTER
+      // TODO - Define this
 #endif
       if (MScore::debugMode) {
             qDebug("DPI %f", MScore::DPI);
