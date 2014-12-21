@@ -66,9 +66,9 @@ class Segment : public Element {
 #ifdef QML_SCRIPT_INTERFACE
       Q_PROPERTY(QQmlListProperty<Ms::Element> annotations READ qmlAnnotations)
 #endif
-#ifdef LUA_SCRIPT_INTERFACE
+/* #ifdef LUA_SCRIPT_INTERFACE
       Q_PROPERTY(QList<Ms::Element> annotations READ qmlAnnotations)
-#endif
+#endif */
 
       Q_ENUMS(Type)
 

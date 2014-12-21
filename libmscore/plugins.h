@@ -81,8 +81,6 @@ class MsProcess : public QProcess {
 //   @P scale  qreal   scaling factor
 //---------------------------------------------------------
 
-#ifdef QML_SCRIPT_INTERFACE
-
 class MsScoreView : public QQuickPaintedItem, public MuseScoreView {
       Q_OBJECT
       Q_PROPERTY(QColor color READ color WRITE setColor)
@@ -133,77 +131,6 @@ class MsScoreView : public QQuickPaintedItem, public MuseScoreView {
       qreal scale() const             { return mag;        }
       void setScale(qreal v)          { mag = v;           }
       };
-
-#endif
-
-#ifdef LUA_SCRIPT_INTERFACE
-
-#include <QObject>
-#include <QtLua/Plugin>
-
-class MsScoreView : public QObject, public MuseScoreView {
-      Q_OBJECT
-      Q_PROPERTY(QColor color READ color WRITE setColor)
-      Q_PROPERTY(qreal  scale READ scale WRITE setScale)
-
-      Score* score;
-      int _currentPage;
-      QColor _color;
-      qreal mag;
-      int playPos;
-      QRectF _boundingRect;
-
-      QNetworkAccessManager* networkManager;
-
-      virtual void dataChanged(const QRectF&)   { update(); }
-      virtual void updateAll()                  { update(); }
-      virtual void adjustCanvasPosition(const Element*, bool) {}
-      virtual void removeScore()                {}
-      virtual void changeEditElement(Element*)  {}
-      virtual int gripCount() const             { return 0; }
-      virtual const QRectF& getGrip(int) const;
-      virtual const QTransform& matrix() const;
-      virtual void setDropRectangle(const QRectF&) {}
-      virtual void cmdAddSlur(Note*, Note*)     {}
-      virtual void startEdit()                  {}
-      virtual void startEdit(Element*, int)     {}
-      virtual Element* elementNear(QPointF)     { return 0; }
-
-      virtual void paint(QPainter*);
-
-      virtual void setCursor(const QCursor&)    {}
-      virtual QCursor cursor() const            { return QCursor(); }
-      virtual QRectF boundingRect() const       { return _boundingRect; }
-      virtual void drawBackground(QPainter*, const QRectF&) const {}
-
-   public slots:
-      Q_INVOKABLE void setScore(Score*);
-      Q_INVOKABLE void setCurrentPage(int n);
-      Q_INVOKABLE void nextPage();
-      Q_INVOKABLE void prevPage();
-
-   public:
-      MsScoreView(QObject* parent = 0);  // TODO - Lua
-      virtual ~MsScoreView() {}
-      QColor color() const            { return _color;        }
-      void setColor(const QColor& c)  { _color = c;           }
-      qreal scale() const             { return mag;        }
-      void setScale(qreal v)          { mag = v;           }
-
-      };
-
-class ExamplePlugin : public QObject, public QtLua::PluginInterface {
-      Q_OBJECT
-      Q_INTERFACES(QtLua::PluginInterface)
-      #if QT_VERSION >= 0x050000
-      Q_PLUGIN_METADATA(IID "qtlua.ExamplePlugin")
-      #endif
-
-      public:
-
-      void register_members(QtLua::Plugin &plugin);
-      };
-#endif
 
 
 } // namespace Ms

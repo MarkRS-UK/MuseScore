@@ -33,6 +33,9 @@ class PluginCreator : public QMainWindow, public Ui::PluginCreatorBase {
 
       QString path;
       QmlPlugin* item;
+#ifdef LUA_SCRIPT_INTERFACE
+      QtLua::State luaState;
+#endif
       HelpBrowser* helpBrowser;
       QDockWidget* manualDock;
       QPointer<QQuickView> view;

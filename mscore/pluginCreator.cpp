@@ -19,6 +19,10 @@
 #include "preferences.h"
 #include "libmscore/score.h"
 
+#ifdef LUA_SCRIPT_INTERFACE
+#include <QtLua/State>
+#endif
+
 namespace Ms {
 
 extern bool useFactorySettings;
@@ -275,6 +279,8 @@ static void qmlMsgHandler(QtMsgType type, const char* msg)
 //   runClicked
 //---------------------------------------------------------
 
+#ifdef QML_SCRIPT_INTERFACE
+
 void PluginCreator::runClicked()
       {
       log->clear();
@@ -339,6 +345,22 @@ void PluginCreator::runClicked()
             mscore->currentScore()->endCmd();
       mscore->endCmd();
       }
+#endif
+
+#ifdef LUA_SCRIPT_INTERFACE
+void PluginCreator::runClicked()
+      {
+      log->clear();
+      luaState = new QtLua::State();
+
+      if (mscore->currentScore() && item->pluginType() != "dock")
+            mscore->currentScore()->startCmd();
+      lua_State->exec_statements(textEdit->toPlainText().toUtf8());
+      if (mscore->currentScore() && item->pluginType() != "dock")
+            mscore->currentScore()->endCmd();
+      mscore->endCmd();
+      }
+#endif
 
 //---------------------------------------------------------
 //   closePlugin

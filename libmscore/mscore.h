@@ -13,8 +13,10 @@
 #ifndef __MSCORE_H__
 #define __MSCORE_H__
 
+#ifdef LUA_SCRIPT_INTERFACE
 #include "/usr/include/lua-5.1/lua.hpp"
 #include <QtLua/State>
+#endif
 
 namespace Ms {
 

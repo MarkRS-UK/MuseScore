@@ -29,11 +29,16 @@ include_directories(
       )
 
 if (SCRIPT_INTERFACE)
-      set (SCRIPT_FILES mscorePlugins pluginCreator.cpp qmledit.cpp pluginManager.cpp)
+      set (SCRIPT_FILES mscorePlugins pluginCreator.cpp) # qmledit.cpp)
+      set (SCRIPT_MOCS pluginCreator.h) # qmledit.h)
       set (SCRIPT_UI   pluginCreator.ui pluginManager.ui)
 endif (SCRIPT_INTERFACE)
 
-QT5_WRAP_UI (ui_headers
+if (QML_SCRIPT_INTERFACE)
+      set (SCRIPT_FILES ${SCRIPT_FILES} qmledit.cpp qmlplugin.cpp)
+      set (SCRIPT_MOCS ${SCRIPT_MOCS} qmledit.h qmlplugin.h)
+endif (QML_SCRIPT_INTERFACE)
+
       insertmeasuresdialog.ui editinstrument.ui editstyle.ui instrdialog.ui instrwidget.ui
       measuresdialog.ui pagesettings.ui mixer.ui playpanel.ui prefsdialog.ui measureproperties.ui
       textpalette.ui  timedialog.ui symboldialog.ui  shortcutcapturedialog.ui  editdrumset.ui
@@ -242,7 +247,7 @@ add_executable ( ${ExecutableName}
       waveview.cpp helpBrowser.cpp inspector/inspectorLasso.cpp
       editelement.cpp inspector/inspectorVolta.cpp inspector/inspectorOttava.cpp enableplayforwidget.cpp
       inspector/inspectorTrill.cpp
-      inspector/inspectorHairpin.cpp qmlplugin.cpp editlyrics.cpp
+      inspector/inspectorHairpin.cpp plugin.cpp editlyrics.cpp
       musicxmlfonthandler.cpp musicxmlsupport.cpp exportxml.cpp importxml.cpp importxmlfirstpass.cpp
       savePositions.cpp inspector/inspectorJump.cpp inspector/inspectorMarker.cpp
       inspector/inspectorGlissando.cpp inspector/inspectorNote.cpp inspector/inspectorAmbitus.cpp
@@ -380,6 +385,13 @@ if (MINGW)
       endif (OCR)
    endif (OMR)
 
+   if (QML_SCRIPT_INTERFACE)
+      set(SCRIPT_FILES ${CROSSQT}/bin/Qt5Qml.dll
+                       ${CROSSQT}/bin/Qt5Quick.dll
+                       ${CROSSQT}/bin/Qt5QuickWidgets.dll
+                       ${CROSSQT}/bin/Qt5Script.dll)
+      set(SCRIPT_DIR qml)
+   endif (QML_SCRIPT_INTERFACE)
    target_link_libraries(mscore ${QT_mingw_LIBRARIES})
 
    install( TARGETS mscore RUNTIME DESTINATION bin )
@@ -405,10 +417,7 @@ if (MINGW)
       ${CROSSQT}/bin/Qt5WebKit.dll
       ${CROSSQT}/bin/Qt5WebKitWidgets.dll
       ${CROSSQT}/bin/Qt5XmlPatterns.dll
-      ${CROSSQT}/bin/Qt5Qml.dll
-      ${CROSSQT}/bin/Qt5Quick.dll
-      ${CROSSQT}/bin/Qt5QuickWidgets.dll
-      ${CROSSQT}/bin/Qt5Script.dll
+      ${SCRIPT_FILES}
       ${CROSSQT}/bin/Qt5Sql.dll
       ${CROSSQT}/bin/Qt5Positioning.dll
       ${CROSSQT}/bin/Qt5PrintSupport.dll
@@ -448,7 +457,7 @@ if (MINGW)
       DESTINATION bin/sqldrivers)
 
     install(DIRECTORY
-      ${CROSSQT}/qml
+      ${CROSSQT}/${SCRIPT_DIR}
       DESTINATION .
       REGEX ".*QtWebkit.*" EXCLUDE
       REGEX ".*QtTest.*" EXCLUDE
@@ -535,7 +544,7 @@ if (APPLE)
      DESTINATION ${Mscore_SHARE_NAME}${Mscore_INSTALL_NAME}fonts
      )
      install(DIRECTORY
-      ${QT_INSTALL_PREFIX}/qml
+      ${QT_INSTALL_PREFIX}/${SCRIPT_DIR}
       DESTINATION ${Mscore_SHARE_NAME}${Mscore_INSTALL_NAME}
       REGEX ".*QtWebkit.*" EXCLUDE
       REGEX ".*QtTest.*" EXCLUDE

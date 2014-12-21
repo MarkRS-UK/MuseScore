@@ -12,6 +12,12 @@
 
 #include "config.h"
 #include "musescoreCore.h"
+
+#ifdef LUA_SCRIPT_INTERFACE
+#include "/usr/include/lua-5.1/lua.hpp"
+#include <QtLua/State>
+#endif
+
 #include "style.h"
 #include "mscore.h"
 #include "sequencer.h"
@@ -111,7 +117,7 @@ extern QString mscoreGlobalShare;
 
 void MScore::init()
       {
-#ifdef QML_SCRIPT_INTERFACE
+#ifdef SCRIPT_INTERFACE
       qRegisterMetaType<Element::Type>("ElementType");
       qRegisterMetaType<Note::ValueType>("ValueType");
       qRegisterMetaType<MScore::Direction>("Direction");

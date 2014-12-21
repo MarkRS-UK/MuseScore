@@ -1269,9 +1269,8 @@ QQmlListProperty<Ms::Element> Segment::qmlAnnotations()
       }
 #endif
 
-#ifdef LUA_SCRIPT_INTERFACE
-QList<Ms::Element> Segment::qmlAnnotations()
-      {
+/* #ifdef LUA_SCRIPT_INTERFACE
+QList<Ms::Element> Segment::qmlAnnotations() {
       _qmlAnnotations.clear();
       for (std::vector<Element*>::iterator it = _annotations.begin();
            it != _annotations.end(); ++it) {
@@ -1279,5 +1278,5 @@ QList<Ms::Element> Segment::qmlAnnotations()
             }
       return QList<Ms::Element>(this, _qmlAnnotations);
       }
-#endif
+#endif */
 }           // namespace Ms

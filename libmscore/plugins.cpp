@@ -17,7 +17,10 @@
 //  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 //=============================================================================
 
-#include "config.h"
+#ifdef LUA_SCRIPT_INTERFACE
+#include <QtLua/Function>
+#endif
+
 #include "plugins.h"
 
 #ifdef SCRIPT_INTERFACE
@@ -55,23 +58,19 @@ namespace Ms {
 //---------------------------------------------------------
 
 #ifdef QML_SCRIPT_INTERFACE
-
 MsScoreView::MsScoreView(QQuickItem* parent)
    : QQuickPaintedItem(parent)
       {
       setAcceptedMouseButtons(Qt::LeftButton);
       score = 0;
       }
-
 #endif
-
 #ifdef LUA_SCRIPT_INTERFACE
 
-MsScoreView::MsScoreView(QObject* parent) {
+MsScoreView::MsScoreView(QQuickItem* parent) {
       setAcceptedMouseButtons(Qt::LeftButton);
       score = 0;
       }
-
 #endif
 
 //---------------------------------------------------------
@@ -247,4 +246,5 @@ const QTransform& MsScoreView::matrix() const
       }
 
 }
+
 #endif

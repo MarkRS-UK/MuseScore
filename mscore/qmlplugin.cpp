@@ -10,7 +10,7 @@
 //  the file LICENCE.GPL
 //=============================================================================
 
-#include "config.h"
+#include "plugin.h"
 #ifdef SCRIPT_INTERFACE
 
 #include "qmlplugin.h"
@@ -19,7 +19,12 @@
 #include "libmscore/score.h"
 
 #ifdef QML_SCRIPT_INTERFACE
-#include <QQmlEngine>
+// #include <QQmlEngine>
+#include <QtQml>
+#endif
+
+#ifdef LUA_SCRIPT_INTERFACE
+#include <QtLua/String>
 #endif
 
 namespace Ms {
@@ -50,22 +55,13 @@ QmlPlugin::~QmlPlugin()
       }
 
 //---------------------------------------------------------
-//   curScore
-//---------------------------------------------------------
-
-Score* QmlPlugin::curScore() const
-      {
-      return msc->currentScore();
-      }
-
-//---------------------------------------------------------
 //   scores
 //---------------------------------------------------------
 
 #ifdef QML_SCRIPT_INTERFACE
 QQmlListProperty<Score> QmlPlugin::scores()
       {
-      return QQmlListProperty<Score>(this, msc->scores());
+      return QQmlListProperty<Score>(this, plugin::scores());
       }
 #endif
 #ifdef LUA_SRIPT_INTERFACE
@@ -75,23 +71,13 @@ QList<Score> QmlPlugin::scores() {
 #endif
 
 //---------------------------------------------------------
-//   writeScore
-//---------------------------------------------------------
-
-bool QmlPlugin::writeScore(Score* s, const QString& name, const QString& ext)
-      {
-      if(!s)
-            return false;
-      return msc->saveAs(s, true, name, ext);
-      }
-
-//---------------------------------------------------------
 //   readScore
 //---------------------------------------------------------
 
 Score* QmlPlugin::readScore(const QString& name)
       {
-      Score * score = msc->openScore(name);
+//      Score * score = plugin::openScore(name);
+      Score * score = plugin::readScore(name);
 #ifdef QML_SCRIPT_INTERFACE
       // tell QML not to garbage collect this score
       if (score)
@@ -106,10 +92,8 @@ Score* QmlPlugin::readScore(const QString& name)
 
 Ms::Element* QmlPlugin::newElement(int t)
       {
-      Score* score = curScore();
-      if (score == 0)
-            return 0;
-      Element* e = Element::create(Element::Type(t), score);
+      Element* e = plugin::newElement(t);
+
 #ifdef QML_SCRIPT_INTERFACE
       // tell QML not to garbage collect this score
       Ms::MScore::qml()->setObjectOwnership(e, QQmlEngine::CppOwnership);
@@ -123,44 +107,15 @@ Ms::Element* QmlPlugin::newElement(int t)
 
 Score* QmlPlugin::newScore(const QString& name, const QString& part, int measures)
       {
-      if (msc->currentScore())
-            msc->currentScore()->endCmd();
-      Score* score = new Score(MScore::defaultStyle());
-      score->setName(name);
-      score->appendPart(part);
-      score->appendMeasures(measures);
-      score->doLayout();
-      int view = msc->appendScore(score);
-      msc->setCurrentView(0, view);
-      qApp->processEvents();
+      Score* score = plugin::newScore(name, part, measures);
+
 #ifdef QML_SCRIPT_INTERFACE
       // tell QML not to garbage collect this score
       QQmlEngine::setObjectOwnership(score, QQmlEngine::CppOwnership);
 #endif
-      score->startCmd();
+//      score->startCmd();
       return score;
       }
 
-//---------------------------------------------------------
-//   cmd
-//---------------------------------------------------------
-
-void QmlPlugin::cmd(const QString& s)
-      {
-      Shortcut* sc = Shortcut::getShortcut(qPrintable(s));
-      if (sc)
-            msc->cmd(sc->action());
-      else
-            qDebug("QmlPlugin:cmd: not found <%s>", qPrintable(s));
-      }
-
-//---------------------------------------------------------
-//   newQProcess
-//---------------------------------------------------------
-
-MsProcess* QmlPlugin::newQProcess()
-      {
-      return 0; // TODO: new MsProcess(this);
-      }
 }
 #endif

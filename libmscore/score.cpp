@@ -1707,7 +1707,7 @@ Segment* Score::firstSegment(Segment::Type segType) const
             if (seg && !(seg->segmentType() & segType))
                   seg = seg->next1(segType);
             }
-
+#ifdef QML_SCRIPT_INTERFACE
       // if called from QML/JS, tell QML engine not to garbage collect this object
       if (seg)
             QQmlEngine::setObjectOwnership(seg, QQmlEngine::CppOwnership);

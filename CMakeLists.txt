@@ -53,6 +53,8 @@ set(MSCORE_UNSTABLE  TRUE)          # mark as unstable
 
 set(USE_SSE           TRUE)
 set(SCRIPT_INTERFACE  TRUE)
+SET(QML_SCRIPT_INTERFACE TRUE)
+# SET(LUA_SCRIPT_INTERFACE TRUE)
 
 option(AEOLUS        "enable pipe organ synthesizer"      OFF)
 option(ZERBERUS      "enable experimental sfz sampler"    ON)
