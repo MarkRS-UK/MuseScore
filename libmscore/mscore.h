@@ -353,10 +353,10 @@ class MScore : public QObject {
       static int _hRaster, _vRaster;
 
 #ifdef QML_SCRIPT_INTERFACE
-      static QQmlEngine* _qml;
+      static QQmlEngine* _scEng;
 #endif
 #ifdef LUA_SCRIPT_INTERFACE
-      QtLua::State luaState;
+      static QtLua::State _scEng;
 #endif
    public:
       enum class Direction  : char { AUTO, UP, DOWN };
@@ -412,9 +412,13 @@ class MScore : public QObject {
       static bool noImages;
 
 #ifdef QML_SCRIPT_INTERFACE
-      static QQmlEngine* qml();
+      static QQmlEngine* scEng();
 #endif
       virtual void endCmd() { };
+#ifdef LUA_SCRIPT_INTERFACE
+      static QtLua::State scEng();
+#endif
+      static void msRegister();
       };
 
 //---------------------------------------------------------

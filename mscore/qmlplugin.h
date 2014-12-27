@@ -26,7 +26,6 @@ class Score;
 class Element;
 class MScore;
 class MuseScoreCore;
-//class plugin;
 
 extern int version();
 extern int majorVersion();
@@ -51,7 +50,6 @@ extern int updateVersion();
 //   @P scores               array[Ms::Score]  all currently open scores (read only)
 //---------------------------------------------------------
 
-#ifdef QML_SCRIPT_INTERFACE
 class QmlPlugin : public QQuickItem , public plugin {
       Q_OBJECT
       Q_PROPERTY(QString menuPath        READ menuPath WRITE setMenuPath)
@@ -68,7 +66,6 @@ class QmlPlugin : public QQuickItem , public plugin {
       Q_PROPERTY(qreal mscoreDPI         READ mscoreDPI)
       Q_PROPERTY(Ms::Score* curScore     READ curScore)
       Q_PROPERTY(QQmlListProperty<Ms::Score> scores READ scores)
-//      Q_PROPERTY(Ms::Score* score READ readScore)
 
    signals:
       void run();
@@ -84,11 +81,9 @@ class QmlPlugin : public QQuickItem , public plugin {
       Q_INVOKABLE Ms::Score* newScore(const QString& name, const QString& part, int measures);
       Q_INVOKABLE Ms::Element* newElement(int);
       Q_INVOKABLE Ms::Score* readScore(const QString& name);
-//      Ms::Score* readScore(const QString& name);
       };
 
 #endif
 
 } // namespace Ms
-#endif
 #endif

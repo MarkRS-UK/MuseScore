@@ -101,7 +101,7 @@ bool    MScore::noExcerpts = false;
 bool    MScore::noImages = false;
 
 #ifdef QML_SCRIPT_INTERFACE
-QQmlEngine* MScore::_qml = 0;
+QQmlEngine* MScore::_scEng = 0;
 #endif
 
 Sequencer* MScore::seq = 0;
@@ -284,27 +284,30 @@ void MScore::defaultStyleForPartsHasChanged()
       _defaultStyleForParts = 0;
       }
 
-#ifdef QML_SCRIPT_INTERFACE
-//---------------------------------------------------------
-//   qml
-//---------------------------------------------------------
-
-QQmlEngine* MScore::qml()
+#ifdef SCRIPT_INTERFACE
+#ifdef LUA_SCRIPT_INTERFACE
+QtLua::State MScore::scEng()
       {
-      if (_qml == 0) {
+      if (_scEng == 0) {
             //-----------some qt bindings
-            _qml = new QQmlEngine;
+            _scEng = _scEng.openlib(QtLua::QtLuaLib);
+            msRegister();
+            }
+      return scEng;
+      }
+#endif
+void MScore::msRegister() {
 #ifdef Q_OS_WIN
             QStringList importPaths;
-            QDir dir(QCoreApplication::applicationDirPath() + QString("/../qml"));
+            QDir dir(QCoreApplication::applicationDirPath() + QString("/../plugins"));
             importPaths.append(dir.absolutePath());
-            _qml->setImportPathList(importPaths);
+            _scEng->setImportPathList(importPaths);
 #endif
 #ifdef Q_OS_MAC
             QStringList importPaths;
-            QDir dir(mscoreGlobalShare + QString("/qml"));
+            QDir dir(mscoreGlobalShare + QString("/plugins"));
             importPaths.append(dir.absolutePath());
-            _qml->setImportPathList(importPaths);
+            _scEng->setImportPathList(importPaths);
 #endif
             qmlRegisterType<MsProcess>  ("MuseScore", 1, 0, "QProcess");
             qmlRegisterType<FileIO, 1>  ("FileIO",    1, 0, "FileIO");
@@ -343,9 +346,6 @@ QQmlEngine* MScore::qml()
             qmlRegisterType<ChordRest>();
             qmlRegisterType<SlurTie>();
             qmlRegisterType<Spanner>();
-            }
-      return _qml;
       }
 #endif
 }
-

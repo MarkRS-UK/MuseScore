@@ -13,14 +13,17 @@
 
 #include "pluginCreator.h"
 #include "musescore.h"
-#include "qmlplugin.h"
 #include "icons.h"
 #include "helpBrowser.h"
 #include "preferences.h"
 #include "libmscore/score.h"
 
+#ifdef QML_SCRIPT_INTERFACE
+#include "qmlplugin.h"
+#endif
 #ifdef LUA_SCRIPT_INTERFACE
 #include <QtLua/State>
+#include "luaplugin.h"
 #endif
 
 namespace Ms {
@@ -248,104 +251,31 @@ void PluginCreator::closeEvent(QCloseEvent* ev)
       }
 
 //---------------------------------------------------------
-//   qmlMsgHandler
+//   scMsgHandler
 //---------------------------------------------------------
+//
 
-static void qmlMsgHandler(QtMsgType type, const char* msg)
-      {
+void scMsgHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
       QString s;
-      switch(type) {
+      switch (type) {
             case QtDebugMsg:
-                  s = QString("Debug: %1\n").arg(msg);
+                  s = QString("Debug");
                   break;
             case QtWarningMsg:
-                  s = QString("Warning: %1\n").arg(msg);
+                  s = QString("Warning");
                   break;
             case QtCriticalMsg:
-                  s = QString("Critical: %1\n").arg(msg);
+                  s = QString("Critical");
                   break;
             case QtFatalMsg:
-                  s = QString("Fatal: %1\n").arg(msg);
+                  s = QString("Fatal");
                   break;
-/* Qt5.2?           case QtTraceMsg:
-                  s = QString("Trace: %1\n").arg(msg);
-                  break;
-            */
             }
-      mscore->pluginCreator()->msg(s);
-      }
-
-//---------------------------------------------------------
-//   runClicked
-//---------------------------------------------------------
-
-#ifdef QML_SCRIPT_INTERFACE
-
-void PluginCreator::runClicked()
-      {
-      log->clear();
-      QQmlEngine* qml = Ms::MScore::qml();
-      connect(qml, SIGNAL(warnings(const QList<QQmlError>&)),
-         SLOT(qmlWarnings(const QList<QQmlError>&)));
-
-      item = 0;
-      QQmlComponent component(qml);
-      component.setData(textEdit->toPlainText().toUtf8(), QUrl());
-      QObject* obj = component.create();
-      if (obj == 0) {
-            msg("creating component failed\n");
-            foreach(QQmlError e, component.errors())
-                  msg(QString("   line %1: %2\n").arg(e.line()).arg(e.description()));
-            stop->setEnabled(false);
-            return;
-            }
-      qInstallMsgHandler(qmlMsgHandler);
-      stop->setEnabled(true);
-      run->setEnabled(false);
-
-      item = qobject_cast<QmlPlugin*>(obj);
-
-      if (item->pluginType() == "dock" || item->pluginType() == "dialog") {
-            view = new QQuickView(qml, 0);
-            view->setTitle(item->menuPath().mid(item->menuPath().lastIndexOf(".") + 1));
-            view->setColor(QApplication::palette().color(QPalette::Window));
-            view->setResizeMode(QQuickView::SizeRootObjectToView);
-            view->setWidth(item->width());
-            view->setHeight(item->height());
-            item->setParentItem(view->contentItem());
-
-            if (item->pluginType() == "dock") {
-                  dock = new QDockWidget("Plugin", 0);
-                  dock->setAttribute(Qt::WA_DeleteOnClose);
-                  dock->setWidget(QWidget::createWindowContainer(view));
-                  dock->widget()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
-                  Qt::DockWidgetArea area = Qt::RightDockWidgetArea;
-                  if (item->dockArea() == "left")
-                        area = Qt::LeftDockWidgetArea;
-                  else if (item->dockArea() == "top")
-                        area = Qt::TopDockWidgetArea;
-                  else if (item->dockArea() == "bottom")
-                        area = Qt::BottomDockWidgetArea;
-                  addDockWidget(area, dock);
-                  connect(dock, SIGNAL(destroyed()), SLOT(closePlugin()));
-                  dock->widget()->setAttribute(Qt::WA_DeleteOnClose);
+       QString r = QString("%1: %2 (%3:%4, %5)\n").arg(s).arg(msg).arg(context.file).arg(context.line).arg(context.function);
+       mscore->pluginCreator()->msg(r);
                   dock->show();
-                  }
-            view->show();
-            view->raise();
-            connect(view, SIGNAL(destroyed()), SLOT(closePlugin()));
-            }
-
-      connect(qml,  SIGNAL(quit()), SLOT(closePlugin()));
-
-      if (mscore->currentScore() && item->pluginType() != "dock")
-            mscore->currentScore()->startCmd();
-      item->runPlugin();
-      if (mscore->currentScore() && item->pluginType() != "dock")
-            mscore->currentScore()->endCmd();
-      mscore->endCmd();
-      }
-#endif
+}
 
 #ifdef LUA_SCRIPT_INTERFACE
 void PluginCreator::runClicked()
@@ -441,7 +371,7 @@ void PluginCreator::savePlugin()
             }
       QFile f(path);
       QFileInfo fi(f);
-      if(fi.suffix() != "qml" ) {
+      if(fi.suffix() != "qml" ) {   // TODO - remove direct qml reference
             QMessageBox::critical(mscore, tr("MuseScore: Save Plugin"), tr("cannot determine file type"));
             return;
       }
@@ -480,7 +410,7 @@ void PluginCreator::newPlugin()
             }
       path    = tr("untitled");
       created = true;
-      QString s(
+      QString s(        // TODO remove direct QtQuick reference
          "import QtQuick 2.0\n"
          "import MuseScore 1.0\n"
          "\n"
@@ -506,16 +436,6 @@ void PluginCreator::textChanged()
       {
       actionSave->setEnabled(textEdit->document()->isModified());
       setState(PCState::DIRTY);
-      }
-
-//---------------------------------------------------------
-//   qmlWarnings
-//---------------------------------------------------------
-
-void PluginCreator::qmlWarnings(const QList<QQmlError>& el)
-      {
-      foreach(const QQmlError& e, el)
-            msg(QString("%1:%2: %3\n").arg(e.line()).arg(e.column()).arg(e.description()));
       }
 
 //---------------------------------------------------------
@@ -547,4 +467,3 @@ void PluginCreator::showManual()
       manualDock->setVisible(!manualDock->isVisible());
       }
 }
-
