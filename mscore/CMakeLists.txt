@@ -29,8 +29,8 @@ include_directories(
       )
 
 if (SCRIPT_INTERFACE)
-      set (SCRIPT_FILES mscorePlugins pluginCreator.cpp)
-      set (SCRIPT_MOCS pluginCreator.h)
+      set (SCRIPT_FILES mscorePlugins pluginCreator.cpp scriptedit.cpp)
+      set (SCRIPT_MOCS pluginCreator.h scriptedit.h)
       set (SCRIPT_UI   pluginCreator.ui pluginManager.ui)
 endif (SCRIPT_INTERFACE)
 
@@ -40,8 +40,8 @@ if (QML_SCRIPT_INTERFACE)
 endif (QML_SCRIPT_INTERFACE)
 
 if (LUA_SCRIPT_INTERFACE)
-      set (SCRIPT_FILES ${SCRIPT_FILES} $[luaedit.cpp] luaplugin.cpp)
-      set (SCRIPT_MOCS ${SCRIPT_MOCS} $[luaedit.h] luaplugin.h)
+      set (SCRIPT_FILES ${SCRIPT_FILES} $luaedit.cpp luaplugin.cpp)
+      set (SCRIPT_MOCS ${SCRIPT_MOCS} $luaedit.h luaplugin.h)
 endif (LUA_SCRIPT_INTERFACE)
 
       insertmeasuresdialog.ui editinstrument.ui editstyle.ui instrdialog.ui instrwidget.ui

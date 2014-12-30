@@ -13,6 +13,7 @@
 #ifndef __PLUGIN_CREATOR_H__
 #define __PLUGIN_CREATOR_H__
 
+#include "scriptedit.h"
 #include "ui_pluginCreator.h"
 
 namespace Ms {

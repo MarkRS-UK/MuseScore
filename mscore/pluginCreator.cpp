@@ -277,21 +277,6 @@ void scMsgHandler(QtMsgType type, const QMessageLogContext &context, const QStri
                   dock->show();
 }
 
-#ifdef LUA_SCRIPT_INTERFACE
-void PluginCreator::runClicked()
-      {
-      log->clear();
-      luaState = new QtLua::State();
-
-      if (mscore->currentScore() && item->pluginType() != "dock")
-            mscore->currentScore()->startCmd();
-      lua_State->exec_statements(textEdit->toPlainText().toUtf8());
-      if (mscore->currentScore() && item->pluginType() != "dock")
-            mscore->currentScore()->endCmd();
-      mscore->endCmd();
-      }
-#endif
-
 //---------------------------------------------------------
 //   closePlugin
 //---------------------------------------------------------
